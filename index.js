@@ -7,7 +7,22 @@ const OpenAI = require('openai');
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+const allowedOrigins = [
+  'https://экстраспа.рф',
+  'https://xn--80aa2avdfcf0h.xn--p1ai', // на всякий случай
+  'https://www.экстраспа.рф',
+];
+
+app.use(cors({
+  origin: function(origin, callback){
+    // Разрешить запросы с твоего сайта и без origin (например, Postman)
+    if(!origin || allowedOrigins.indexOf(origin) !== -1){
+      callback(null, true);
+    } else {
+      callback(new Error('CORS не разрешён для этого источника'));
+    }
+  }
+}));
 app.use(express.json());
 
 const openai = new OpenAI({
@@ -40,3 +55,4 @@ app.post('/chat', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
+
